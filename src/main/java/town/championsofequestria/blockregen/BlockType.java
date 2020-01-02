@@ -15,19 +15,10 @@ public class BlockType {
     
     @Override
     public boolean equals(Object o) {
-        BlockRegenPlugin.debug("Checking to see if " + this.toString() + " equals " + o.toString());
-        if(!(o instanceof BlockType)) {
-            BlockRegenPlugin.debug("It does not!");
+        if(!(o instanceof BlockType)) 
             return false;
-        }
         BlockType other = (BlockType) o;
-        boolean value = this.material == other.material && this.data == other.data;
-        if(value) {
-            BlockRegenPlugin.debug("It does!");
-            return true;
-        }
-        BlockRegenPlugin.debug("It does not!");
-        return false;
+        return this.material == other.material && this.data == other.data;
     }
     
     @Override

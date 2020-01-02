@@ -23,8 +23,6 @@ public class EventManager implements Listener {
     @SuppressWarnings("deprecation")
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
     void onBlockBreak(final BlockBreakEvent pEvent) {
-        if (s.debug)
-            p.getLogger().info("Starting BlockBreakEvent");
         Block block = pEvent.getBlock();
         BlockType type = new BlockType(block.getType(), block.getData());
         if (s.debug)
@@ -47,15 +45,11 @@ public class EventManager implements Listener {
                 }
             }, rs.replaceTime);
         }
-        if (s.debug)
-            p.getLogger().info("Ending BlockBreakEvent");
     }
 
     @SuppressWarnings("deprecation")
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     void onBlockPlace(final BlockPlaceEvent pEvent) {
-        if (s.debug)
-            p.getLogger().info("Starting BlockPlaceEvent");
         Block block = pEvent.getBlock();
         BlockType type = new BlockType(block.getType(), block.getData());
         if (s.debug)
@@ -65,7 +59,5 @@ public class EventManager implements Listener {
                 p.getLogger().info("Setting player placed block flag at " + BlockRegenPlugin.locToString(block.getLocation()));
             d.addPlayerPlacedBlock(block.getLocation());
         }
-        if (s.debug)
-            p.getLogger().info("Ending BlockPlaceEvent");
     }
 }
