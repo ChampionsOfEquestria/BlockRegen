@@ -1,0 +1,36 @@
+general:
+  printStackTraces: true
+  showQueries: true
+  debugMessages: true
+database:
+  username: minecraft
+  password: minecraft
+  host: localhost
+  port: 3306
+  database: creative
+  prefix: CoEBlockRegen_
+blocks:
+    COAL_ORE:
+        data: 0
+        replace: BEDROCK
+        replace-data: 0
+        regenerateTime: 30
+        replaceTime: 2
+    IRON_ORE:
+        data: 0
+        replace: BEDROCK
+        replace-data: 0
+        regenerateTime: 30
+        replaceTime: 2
+    GOLD_ORE:
+        data: 0
+        replace: BEDROCK
+        regenerateTime: 30
+        replace-data: 0
+        replaceTime: 2
+    DIAMOND_ORE:
+        data: 0
+        replace: BEDROCK
+        replace-data: 0
+        regenerateTime: 30
+        replaceTime: 2

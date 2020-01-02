@@ -1,0 +1,13 @@
+name: BlockRegen
+main: town.championsofequestria.blockregen.BlockRegenPlugin
+version: $version
+authors: [SweetieBelle]
+description: >
+             Blocks that are specificed in the configuration file will regenerate themselves after the set time.
+commands:
+   blockregen:
+      description: Main command for blockregen
+      usage: /blockregen <reload>
+permissions:
+    coe.blockregen.reload:
+      description: Allows usage of /blockregen reload
