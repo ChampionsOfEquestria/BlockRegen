@@ -2,6 +2,7 @@ package town.championsofequestria.blockregen;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.logging.Level;
 
@@ -53,9 +54,33 @@ public class Settings {
         ConfigurationSection blocks = config.getConfigurationSection("blocks");
         if (blocks != null)
             for (String name : blocks.getValues(false).keySet()) {
-                Material target = Material.getMaterial(name);
+                Material targetMat = Material.getMaterial(name);
                 byte targetData = (byte) config.getInt("blocks." + name + "data");
-                BlockMap.add(new BlockType(target, targetData), new ReplaceSetting(target, targetData, Material.getMaterial(config.getString("blocks." + name + ".replace")), (byte) config.getInt("blocks." + name + "replace-data"), config.getInt("blocks." + name + ".regenerateTime"), config.getInt("blocks." + name + ".replaceTime")));
+                BlockType target = new BlockType(targetMat, targetData);
+                BlockType replace = new BlockType(Material.getMaterial(config.getString("blocks." + name + ".replace")), (byte) config.getInt("blocks." + name + "replace-data"));
+                int regenerateTime = config.getInt("blocks." + name + ".regenerate-time");
+                int replaceTime = config.getInt("blocks." + name + ".replace-time");
+                ArrayList<String> toolsNames = (ArrayList<String>) config.getStringList("blocks." + name + ".tools-required");
+                ArrayList<Material> tools = new ArrayList<Material>(toolsNames.size());
+                for(String tool : toolsNames) {
+                    tools.add(Material.getMaterial(tool));
+                }
+                double money = config.getDouble("blocks." + name + ".money");
+                int min = config.getInt("blocks." + name + ".min", 1);
+                int max = config.getInt("blocks." + name + ".max", 1);
+                ArrayList<String> worldsBlacklist = (ArrayList<String>) config.getStringList("blocks." + name + ".but-not-in-worlds");
+                ArrayList<World> worlds = new ArrayList<World>(worldsBlacklist.size());
+                for(String world : worldsBlacklist) {
+                    Optional<World> oWorld = Optional.<World>ofNullable(Bukkit.getWorld(world));
+                    if (!oWorld.isPresent()) {
+                        plugin.getLogger().log(Level.SEVERE, "Block " + name + " wanted to add " + world + " as a blacklist, but that world isn't loaded!");
+                        continue;
+                    }
+                    worlds.add(oWorld.get());
+                }
+                boolean trackPlayers = config.getBoolean("blocks." + name + ".track-players", true);
+                BlockMap.add(target, new ReplaceSetting(target, replace, regenerateTime, replaceTime, tools, money, min, max, worlds, trackPlayers));
+                
             }
         loadTasks();
     }

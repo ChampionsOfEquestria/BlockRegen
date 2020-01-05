@@ -5,8 +5,11 @@ import java.util.HashMap;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
+
+import net.milkbowl.vault.economy.Economy;
 
 public class BlockRegenPlugin extends JavaPlugin {
 
@@ -24,7 +27,14 @@ public class BlockRegenPlugin extends JavaPlugin {
         d = new Data(this, s);
         ch = new CommandHandler(d, s);
         getCommand("blockregen").setExecutor(ch);
-        getServer().getPluginManager().registerEvents(new EventManager(this, s, d), this);
+        boolean hasEconomy = false;
+        RegisteredServiceProvider<?> economy = null;
+        if(getServer().getPluginManager().getPlugin("Vault") != null) {
+            economy = getServer().getServicesManager().getRegistration(Economy.class);
+            if(economy != null)
+                hasEconomy = true;
+        }
+        getServer().getPluginManager().registerEvents(new EventManager(this, s, d, hasEconomy, economy), this);
         if (s.debug)
             getLogger().info("Startup complete.");
     }
@@ -42,7 +52,7 @@ public class BlockRegenPlugin extends JavaPlugin {
         }
     }
 
-    @SuppressWarnings({ "deprecation" })
+    @SuppressWarnings("deprecation")
     public void scheduleTask(Block block, ReplaceSetting rs) {
         scheduleTask(new BlockRegenTask(block, block.getType(), block.getData(), rs.regenerateTime));
     }
@@ -52,7 +62,7 @@ public class BlockRegenPlugin extends JavaPlugin {
         tasks.put(task.taskid, task);
     }
     
-    public static String locToString(Location loc) {
+    public String locToString(Location loc) {
         return String.format("%d,%d,%d:%s", loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(), loc.getWorld().getName());
     }
     

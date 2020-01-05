@@ -11,3 +11,7 @@ commands:
 permissions:
     coe.blockregen.reload:
       description: Allows usage of /blockregen reload
+    coe.blockregen.bypass.remove:
+      description: Allows a player to remove a regeneration block without causing it to regen.
+    coe.blockregen.bypass.place:
+      description: Allows a player to place blocks that regenerate without setting the player placed flag. Useful for manually creating ore deposits for example.

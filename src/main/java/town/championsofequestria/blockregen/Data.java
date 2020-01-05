@@ -161,19 +161,6 @@ public class Data {
     }
 
     /**
-     * Checks if a string is "null"
-     *
-     * @param string
-     *            the string to check
-     * @return true if the string is equal to null, the string is empty, the string is "null", or if the string is ",", else false.
-     */
-    public boolean isNull(final String string) {
-        if (string == null || string.isEmpty() || string.equalsIgnoreCase("null") || string.equalsIgnoreCase(","))
-            return true;
-        return false;
-    }
-
-    /**
      * checks if a table exists
      *
      * @param pTable
