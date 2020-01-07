@@ -75,7 +75,7 @@ public class Data {
      */
     private final void createTables() {
         // Generate the information about the various tables
-        final String blocks = "CREATE TABLE `" + s.dbPrefix + "blocks` (`id` INT NOT NULL AUTO_INCREMENT, `world` VARCHAR(50) NOT NULL, `x` INT NOT NULL, `y` INT NOT NULL, `z` INT NOT NULL, PRIMARY KEY (`id`), UNIQUE INDEX `id_UNIQUE` (`id` ASC) VISIBLE);";
+        final String blocks = "CREATE TABLE `" + s.dbPrefix + "blocks` (`id` INT NOT NULL AUTO_INCREMENT, `world` VARCHAR(50) NOT NULL, `x` INT NOT NULL, `y` INT NOT NULL, `z` INT NOT NULL, PRIMARY KEY (`id`));";
         // Generate the database tables
         if (!tableExists(s.dbPrefix + "blocks"))
             createTable(blocks);
