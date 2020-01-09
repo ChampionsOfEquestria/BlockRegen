@@ -1,5 +1,6 @@
 package town.championsofequestria.blockregen;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -11,13 +12,28 @@ public class BlockRegenTask implements Runnable {
     private Material type;
     private byte data;
     private int seconds;
-    public int taskid;
+    int taskid;
+    private int myTaskId;
 
     public BlockRegenTask(Block block, Material type, byte data, int seconds) {
         this.block = block;
         this.type = type;
         this.data = data;
         this.seconds = seconds;
+        this.myTaskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(BlockRegenPlugin.p, new Runnable() {
+            @Override
+            public void run() {
+                decrementSeconds();
+            }
+        }, 20, seconds * 20);
+    }
+    
+    private void decrementSeconds() {
+        seconds--;
+    }
+    
+    public void cancelMyTask() {
+        Bukkit.getScheduler().cancelTask(myTaskId);
     }
     
     @Override
