@@ -5,20 +5,22 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 
+import com.google.common.base.Verify;
+
 public class BlockRegenTask implements Runnable {
     
     
     private Block block;
     private Material type;
-    private byte data;
     private int seconds;
     int taskid;
     private int myTaskId;
 
-    public BlockRegenTask(Block block, Material type, byte data, int seconds) {
+    public BlockRegenTask(Block block, Material type,int seconds) {
+        Verify.verifyNotNull(block);
+        Verify.verifyNotNull(type);
         this.block = block;
         this.type = type;
-        this.data = data;
         this.seconds = seconds;
         this.myTaskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(BlockRegenPlugin.p, new Runnable() {
             @Override
@@ -37,10 +39,8 @@ public class BlockRegenTask implements Runnable {
     }
     
     @Override
-    @SuppressWarnings("deprecation")
     public void run() {
         block.setType(type);
-        block.setData(data);
         BlockRegenPlugin.tasks.remove(taskid);
     }
     
@@ -56,17 +56,13 @@ public class BlockRegenTask implements Runnable {
         return type.toString();
     }
     
-    public byte getData() {
-        return data;
-    }
-    
     public void setTaskId(int taskId) {
         this.taskid = taskId;
     }
     
    @Override
    public String toString() {
-       return String.format("BlockBR[block=%s|type=%s|data=%d|seconds=%d|taskid=%d]", block.toString(), type.name(), data, seconds, taskid);
+       return String.format("BlockBR[block=%s|type=%s|seconds=%d|taskid=%d]", block.toString(), type.name(), seconds, taskid);
    }
     
 }

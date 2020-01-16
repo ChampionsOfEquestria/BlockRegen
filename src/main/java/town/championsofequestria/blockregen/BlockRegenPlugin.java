@@ -49,9 +49,8 @@ public class BlockRegenPlugin extends JavaPlugin {
         tasks.clear();
     }
 
-    @SuppressWarnings("deprecation")
     public void scheduleTask(Block block, ReplaceSetting rs) {
-        scheduleTask(new BlockRegenTask(block, block.getType(), block.getData(), rs.regenerateTime));
+        scheduleTask(new BlockRegenTask(block, block.getType(), rs.regenerateTime));
     }
 
     public void scheduleTask(BlockRegenTask task) {

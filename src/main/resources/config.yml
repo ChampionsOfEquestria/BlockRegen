@@ -11,9 +11,7 @@ database:
   prefix: CoEBlockRegen_
 blocks:
     COAL_ORE:
-        data: 0
         replace: BEDROCK
-        replace-data: 0
         regenerate-time: 86400
         replace-time: 2
         money: 0
@@ -28,9 +26,7 @@ blocks:
             - DIAMOND_PICKAXE
         but-not-in-worlds: []
     IRON_ORE:
-        data: 0
         replace: BEDROCK
-        replace-data: 0
         regenerate-time: 86400
         replace-time: 2
         money: 0
@@ -45,9 +41,7 @@ blocks:
             - DIAMOND_PICKAXE
         but-not-in-worlds: []
     GOLD_ORE:
-        data: 0
         replace: BEDROCK
-        replace-data: 0
         regenerate-time: 86400
         replace-time: 2
         money: 1
@@ -60,9 +54,7 @@ blocks:
             - DIAMOND_PICKAXE
         but-not-in-worlds: []
     LAPIS_ORE:
-        data: 0
         replace: BEDROCK
-        replace-data: 0
         regenerate-time: 5
         replace-time: 2
         money: 0
@@ -76,9 +68,7 @@ blocks:
             - DIAMOND_PICKAXE
         but-not-in-worlds: []
     REDSTONE_ORE:
-        data: 0
         replace: BEDROCK
-        replace-data: 0
         regenerate-time: 86400
         replace-time: 2
         money: 0
@@ -91,9 +81,7 @@ blocks:
             - DIAMOND_PICKAXE
         but-not-in-worlds: []
     GLOWING_REDSTONE_ORE:
-        data: 0
         replace: BEDROCK
-        replace-data: 0
         regenerate-time: 86400
         replace-time: 2
         money: 0
@@ -106,9 +94,7 @@ blocks:
             - DIAMOND_PICKAXE
         but-not-in-worlds: []
     EMERALD_ORE:
-        data: 0
         replace: BEDROCK
-        replace-data: 0
         regenerate-time: 86400
         replace-time: 2
         money: 0
@@ -121,9 +107,7 @@ blocks:
             - DIAMOND_PICKAXE
         but-not-in-worlds: []
     DIAMOND_ORE:
-        data: 0
         replace: BEDROCK
-        replace-data: 0
         regenerate-time: 86400
         replace-time: 2
         money: 0
@@ -135,9 +119,7 @@ blocks:
             - DIAMOND_PICKAXE
         but-not-in-worlds: []
     GLOWSTONE:
-        data: 0
         replace: BEDROCK
-        replace-data: 0
         regenerate-time: 86400
         replace-time: 2
         money: 0
@@ -152,9 +134,7 @@ blocks:
             - DIAMOND_PICKAXE
         but-not-in-worlds: []
     SOUL_SAND:
-        data: 0
         replace: BEDROCK
-        replace-data: 0
         regenerate-time: 86400
         replace-time: 2
         money: 0
@@ -162,16 +142,14 @@ blocks:
         max: 4
         track-players: true
         tools-required:
-            - WOOD_SPADE
-            - STONE_SPADE
-            - IRON_SPADE
-            - GOLD_SPADE
-            - DIAMOND_SPADE
+            - WOOD_SHOVEL
+            - STONE_SHOVEL
+            - IRON_SHOVEL
+            - GOLD_SHOVEL
+            - DIAMOND_SHOVEL
         but-not-in-worlds: []
     QUARTZ_ORE:
-        data: 0
         replace: BEDROCK
-        replace-data: 0
         regenerate-time: 86400
         replace-time: 2
         money: 0

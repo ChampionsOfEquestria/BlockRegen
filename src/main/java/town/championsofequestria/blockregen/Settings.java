@@ -3,6 +3,7 @@ package town.championsofequestria.blockregen;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Optional;
 import java.util.logging.Level;
 
@@ -28,6 +29,7 @@ public class Settings {
     boolean debug;
     private YamlConfiguration eventConfig;
     private File eventConfigFile;
+    HashMap<Material, ReplaceSetting> blocks = new HashMap<Material, ReplaceSetting>(0);
 
     Settings(final BlockRegenPlugin plugin) {
         this.plugin = plugin;
@@ -54,10 +56,8 @@ public class Settings {
         ConfigurationSection blocks = config.getConfigurationSection("blocks");
         if (blocks != null)
             for (String name : blocks.getValues(false).keySet()) {
-                Material targetMat = Material.getMaterial(name);
-                byte targetData = (byte) config.getInt("blocks." + name + "data");
-                BlockType target = new BlockType(targetMat, targetData);
-                BlockType replace = new BlockType(Material.getMaterial(config.getString("blocks." + name + ".replace")), (byte) config.getInt("blocks." + name + "replace-data"));
+                Material target = Material.getMaterial(name);
+                Material replace = Material.getMaterial(config.getString("blocks." + name + ".replace"));
                 int regenerateTime = config.getInt("blocks." + name + ".regenerate-time");
                 int replaceTime = config.getInt("blocks." + name + ".replace-time");
                 ArrayList<String> toolsNames = (ArrayList<String>) config.getStringList("blocks." + name + ".tools-required");
@@ -79,7 +79,7 @@ public class Settings {
                     worlds.add(oWorld.get());
                 }
                 boolean trackPlayers = config.getBoolean("blocks." + name + ".track-players", true);
-                BlockMap.add(target, new ReplaceSetting(target, replace, regenerateTime, replaceTime, tools, money, min, max, worlds, trackPlayers));
+               this.blocks.put(target, new ReplaceSetting(target, replace, regenerateTime, replaceTime, tools, money, min, max, worlds, trackPlayers));
                 
             }
         loadTasks();
@@ -96,7 +96,7 @@ public class Settings {
                 continue;
             }
             Location loc = new Location(oWorld.get(), event.getDouble("x"), event.getDouble("y"), event.getDouble("z"));
-            plugin.scheduleTask(new BlockRegenTask(loc.getBlock(), Material.getMaterial(event.getString("target-material")), (byte) event.getInt("target-data"), event.getInt("time")));
+            plugin.scheduleTask(new BlockRegenTask(loc.getBlock(), Material.getMaterial(event.getString("target-material")), event.getInt("time")));
             eventConfig.set("events." + eventId, null);
             saveEventConfig();
         }
@@ -115,7 +115,6 @@ public class Settings {
      */
     void reloadSettings() {
         plugin.reloadConfig();
-        BlockMap.clear();
         readSettings(plugin.getConfig());
     }
 
@@ -126,7 +125,6 @@ public class Settings {
         section.set("y", task.getBlockLocation().getBlockY());
         section.set("z", task.getBlockLocation().getBlockZ());
         section.set("target-material", task.getMaterial());
-        section.set("target-data", task.getData());
         section.set("time", task.getTimeToRegenerate());
         saveEventConfig();
     }

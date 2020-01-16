@@ -3,6 +3,7 @@ main: town.championsofequestria.blockregen.BlockRegenPlugin
 version: $version
 authors: [SweetieBelle]
 softdepend: [Multiverse-Core, Vault]
+api-version: 1.15
 description: >
              Blocks that are specificed in the configuration file will regenerate themselves after the set time.
 commands:

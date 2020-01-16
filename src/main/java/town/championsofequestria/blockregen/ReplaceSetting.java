@@ -10,11 +10,11 @@ class ReplaceSetting {
     /**
      * Target refers to the material that is to be regenerated. For example, IRON_ORE
      */
-    BlockType target;
+    Material target;
     /**
      * Replace refers to what the temporary block that is placed until the block is regenerated.
      */
-    BlockType replace;
+    Material replace;
     /**
      * Time, in seconds, until the material is regenerated.
      */
@@ -50,7 +50,7 @@ class ReplaceSetting {
     boolean trackPlayers;
 
         
-    ReplaceSetting(BlockType target, BlockType replace, int regenerateTime, int replaceTime, ArrayList<Material> tools, double money, int min, int max, ArrayList<World> worlds, boolean trackPlayers) {
+    ReplaceSetting(Material target, Material replace, int regenerateTime, int replaceTime, ArrayList<Material> tools, double money, int min, int max, ArrayList<World> worlds, boolean trackPlayers) {
         this.target = target;
         this.replace = replace;
         this.regenerateTime = regenerateTime;

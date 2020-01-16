@@ -4,6 +4,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -35,15 +36,14 @@ public class EventManager implements Listener {
         
     }
 
-    @SuppressWarnings("deprecation")
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
     void onBlockBreak(final BlockBreakEvent pEvent) {
         Block block = pEvent.getBlock();
         Player player = pEvent.getPlayer();
-        BlockType type = new BlockType(block.getType(), block.getData());
+        Material type = block.getType();
         if (s.debug)
             p.getLogger().info("Checking if the BlockMap has " + type.toString());
-        ReplaceSetting rs = BlockMap.get(type);
+        ReplaceSetting rs = s.blocks.get(type);
         if (rs != null && !rs.worlds.contains(block.getWorld())) {
             if(player.hasPermission("coe.blockregen.bypass.remove")) {
                 player.sendMessage(ChatColor.RED + "[BlockRegen] You removed a normally regenerating block in admin mode. This block will no longer regenerate.");
@@ -68,27 +68,25 @@ public class EventManager implements Listener {
             p.scheduleTask(block, rs);
             if(rs.max > 1) {
                 pEvent.setDropItems(false);
-                block.getWorld().dropItemNaturally(block.getLocation(), new ItemStack(type.material, getRandomNumber(rs.min, rs.max)));
+                block.getWorld().dropItemNaturally(block.getLocation(), new ItemStack(type, getRandomNumber(rs.min, rs.max)));
             }
             Bukkit.getScheduler().scheduleSyncDelayedTask(p, new Runnable() {
 
                 @Override
                 public void run() {
-                    block.setType(rs.replace.material);
-                    block.setData(rs.replace.data);
+                    block.setType(rs.replace);
                 }
             }, rs.replaceTime);
         }
     }
 
-    @SuppressWarnings("deprecation")
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     void onBlockPlace(final BlockPlaceEvent pEvent) {
         Block block = pEvent.getBlock();
-        BlockType type = new BlockType(block.getType(), block.getData());
+        Material type = block.getType();
         if (s.debug)
             p.getLogger().info("Checking if the BlockMap has " + type.toString());
-        ReplaceSetting rs = BlockMap.get(type);
+        ReplaceSetting rs = s.blocks.get(type);
         if (rs != null && rs.trackPlayers && !rs.worlds.contains(block.getWorld())) {
             Player player = pEvent.getPlayer();
             if(player.hasPermission("coe.blockregen.bypass.place")) {
