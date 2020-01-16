@@ -62,9 +62,4 @@ public class BlockRegenPlugin extends JavaPlugin {
     public String locToString(Location loc) {
         return String.format("%d,%d,%d:%s", loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(), loc.getWorld().getName());
     }
-
-    public static void debug(String str) {
-        if (p.s.debug)
-            p.getLogger().info(str);
-    }
 }

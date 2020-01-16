@@ -5,8 +5,6 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Types;
-import java.util.UUID;
 import java.util.logging.Logger;
 
 import org.bukkit.Location;
@@ -25,30 +23,6 @@ public class Data {
         logger = p.getLogger();
         this.s = s;
         createTables();
-    }
-
-    /**
-     * Adds the note to the player
-     *
-     * @param pUUID
-     *            the user
-     * @param pStaffName
-     *            the staff who added it
-     * @param pNote
-     *            the note
-     */
-    public void addNoteToUser(final UUID pUUID, final String pStaffName, final String pNote) {
-        try {
-            PreparedStatement statement = connection.prepareStatement(String.format("INSERT INTO %snotes (uuid, time, lastKnownStaffName, note) VALUES (?, ?, ?, ?);", s.dbPrefix));
-            statement.setString(1, pUUID.toString());
-            statement.setNull(2, Types.TIMESTAMP);
-            statement.setString(3, pStaffName);
-            statement.setString(4, pNote);
-            statement.executeUpdate();
-            statement.close();
-        } catch (final SQLException e) {
-            error(e);
-        }
     }
 
     /**

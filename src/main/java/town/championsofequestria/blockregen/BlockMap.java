@@ -16,10 +16,6 @@ public class BlockMap {
         settings.add(setting);
     }
 
-    public static boolean has(BlockType type) {
-        return types.contains(type);
-    }
-
     public static ReplaceSetting get(BlockType type) {
         try {
             return settings.get(types.indexOf(type));
