@@ -22,17 +22,23 @@ public class Settings {
     String dbPort;
     String dbPrefix;
     String dbUser;
-    private final BlockRegenPlugin plugin;
     boolean stackTraces;
     boolean showQuery;
     boolean debug;
+    ArrayList<String> blacklistedTowns;
+    private final BlockRegenPlugin plugin;
     private YamlConfiguration eventConfig;
     private File eventConfigFile;
+    private File townConfigFile;
+    private YamlConfiguration townConfig;
 
     Settings(final BlockRegenPlugin plugin) {
         this.plugin = plugin;
         eventConfigFile = new File(plugin.getDataFolder(), "events.yml");
         eventConfig = YamlConfiguration.loadConfiguration(eventConfigFile);
+        townConfigFile = new File(plugin.getDataFolder(), "towns.yml");
+        townConfig = YamlConfiguration.loadConfiguration(townConfigFile);
+        blacklistedTowns = new ArrayList<String>(0);
         readSettings(plugin.getConfig());
     }
 
@@ -62,7 +68,7 @@ public class Settings {
                 int replaceTime = config.getInt("blocks." + name + ".replace-time");
                 ArrayList<String> toolsNames = (ArrayList<String>) config.getStringList("blocks." + name + ".tools-required");
                 ArrayList<Material> tools = new ArrayList<Material>(toolsNames.size());
-                for(String tool : toolsNames) {
+                for (String tool : toolsNames) {
                     tools.add(Material.getMaterial(tool));
                 }
                 double money = config.getDouble("blocks." + name + ".money");
@@ -70,7 +76,7 @@ public class Settings {
                 int max = config.getInt("blocks." + name + ".max", 1);
                 ArrayList<String> worldsBlacklist = (ArrayList<String>) config.getStringList("blocks." + name + ".but-not-in-worlds");
                 ArrayList<World> worlds = new ArrayList<World>(worldsBlacklist.size());
-                for(String world : worldsBlacklist) {
+                for (String world : worldsBlacklist) {
                     Optional<World> oWorld = Optional.<World>ofNullable(Bukkit.getWorld(world));
                     if (!oWorld.isPresent()) {
                         plugin.getLogger().log(Level.SEVERE, "Block " + name + " wanted to add " + world + " as a blacklist, but that world isn't loaded!");
@@ -80,9 +86,9 @@ public class Settings {
                 }
                 boolean trackPlayers = config.getBoolean("blocks." + name + ".track-players", true);
                 BlockMap.add(target, new ReplaceSetting(target, replace, regenerateTime, replaceTime, tools, money, min, max, worlds, trackPlayers));
-                
             }
         loadTasks();
+        loadBlacklistedTowns();
     }
 
     private void loadTasks() {
@@ -99,6 +105,30 @@ public class Settings {
             plugin.scheduleTask(new BlockRegenTask(loc.getBlock(), Material.getMaterial(event.getString("target-material")), (byte) event.getInt("target-data"), event.getInt("time")));
             eventConfig.set("events." + eventId, null);
             saveEventConfig();
+        }
+    }
+
+    private void loadBlacklistedTowns() {
+        blacklistedTowns = (ArrayList<String>) townConfig.getStringList("towns");
+    }
+
+    void addBlacklistedTown(String townName) {
+        blacklistedTowns.add(townName);
+        townConfig.set("towns", blacklistedTowns);
+        saveBlacklistedTowns();
+    }
+
+    void removeBlacklistedTown(String townName) {
+        blacklistedTowns.remove(townName);
+        townConfig.set("towns", blacklistedTowns);
+        saveBlacklistedTowns();
+    }
+
+    private void saveBlacklistedTowns() {
+        try {
+            townConfig.save(townConfigFile);
+        } catch (IOException ex) {
+            plugin.getLogger().log(Level.SEVERE, null, ex);
         }
     }
 

@@ -2,13 +2,13 @@ name: BlockRegen
 main: town.championsofequestria.blockregen.BlockRegenPlugin
 version: $version
 authors: [SweetieBelle]
-softdepend: [Multiverse-Core, Vault]
+softdepend: [Multiverse-Core, Towny, Vault]
 description: >
              Blocks that are specificed in the configuration file will regenerate themselves after the set time.
 commands:
    blockregen:
-      description: Main command for blockregen
-      usage: /blockregen <reload>
+      description: Main command for blockregen.
+      usage: /blockregen <reload | towny>
 permissions:
     coe.blockregen.reload:
       description: Allows usage of /blockregen reload
@@ -16,3 +16,5 @@ permissions:
       description: Allows a player to remove a regeneration block without causing it to regen.
     coe.blockregen.bypass.place:
       description: Allows a player to place blocks that regenerate without setting the player placed flag. Useful for manually creating ore deposits for example.
+    coe.blockregen.towny-override:
+      description: Allows a player to toggle another Town's ore regen blacklist status without being the mayor of that Town.

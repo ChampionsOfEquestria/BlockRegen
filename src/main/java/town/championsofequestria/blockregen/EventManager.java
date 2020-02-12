@@ -1,5 +1,6 @@
 package town.championsofequestria.blockregen;
 
+import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 
 import org.bukkit.Bukkit;
@@ -14,6 +15,7 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.RegisteredServiceProvider;
 
+import com.palmergames.bukkit.towny.object.TownBlock;
 import net.milkbowl.vault.economy.Economy;
 
 public class EventManager implements Listener {
@@ -24,15 +26,16 @@ public class EventManager implements Listener {
     private boolean hasEconomy;
     private RegisteredServiceProvider<?> economy;
     private ThreadLocalRandom random;
+    private boolean hasTowny;
 
-    public EventManager(final BlockRegenPlugin p, final Settings s, final Data d, boolean hasEconomy, RegisteredServiceProvider<?> economy) {
+    public EventManager(final BlockRegenPlugin p, final Settings s, final Data d, boolean hasEconomy, RegisteredServiceProvider<?> economy, boolean hasTowny) {
         this.p = p;
         this.s = s;
         this.d = d;
         this.hasEconomy = hasEconomy;
         this.economy = economy;
         this.random = ThreadLocalRandom.current();
-        
+        this.hasTowny = hasTowny;
     }
 
     @SuppressWarnings("deprecation")
@@ -45,12 +48,22 @@ public class EventManager implements Listener {
             p.getLogger().info("Checking if the BlockMap has " + type.toString());
         ReplaceSetting rs = BlockMap.get(type);
         if (rs != null && !rs.worlds.contains(block.getWorld())) {
-            if(player.hasPermission("coe.blockregen.bypass.remove")) {
-                player.sendMessage(ChatColor.RED + "[BlockRegen] You removed a normally regenerating block in admin mode. This block will no longer regenerate.");
+            if (player.hasPermission("coe.blockregen.bypass.remove")) {
+                player.sendMessage(ChatColor.YELLOW + "[BlockRegen] You removed a normally regenerating block in admin mode. This block will no longer regenerate.");
                 p.getLogger().info(player.getName() + " removed " + type.toString() + " at " + p.locToString(block.getLocation()) + " in admin mode.");
                 return;
             }
-            if(!rs.tools.contains(player.getInventory().getItemInMainHand().getType())) {
+            if (hasTowny) {
+                Optional<TownBlock> oTownBlock = TownyHandler.getTownBlock(block.getLocation());
+                if (oTownBlock.isPresent()) {
+                    TownBlock townBlock = oTownBlock.get();
+                    if (townBlock.hasTown()) {
+                        if (s.blacklistedTowns.contains(TownyHandler.getTownFromTownBlockIgnoreExceptions(townBlock).getName()))
+                            return;
+                    }
+                }
+            }
+            if (!rs.tools.contains(player.getInventory().getItemInMainHand().getType())) {
                 player.sendMessage(ChatColor.RED + "You lack the tool required to mine this block.");
                 pEvent.setCancelled(true);
                 return;
@@ -61,12 +74,11 @@ public class EventManager implements Listener {
                 d.removePlayerPlacedBlock(block.getLocation());
                 return;
             }
-
-            if(hasEconomy) {
+            if (hasEconomy) {
                 ((Economy) economy.getProvider()).depositPlayer(player, block.getWorld().getName(), rs.money);
             }
             p.scheduleTask(block, rs);
-            if(rs.max > 1) {
+            if (rs.max > 1) {
                 pEvent.setDropItems(false);
                 block.getWorld().dropItemNaturally(block.getLocation(), new ItemStack(type.material, getRandomNumber(rs.min, rs.max)));
             }
@@ -91,8 +103,8 @@ public class EventManager implements Listener {
         ReplaceSetting rs = BlockMap.get(type);
         if (rs != null && rs.trackPlayers && !rs.worlds.contains(block.getWorld())) {
             Player player = pEvent.getPlayer();
-            if(player.hasPermission("coe.blockregen.bypass.place")) {
-                player.sendMessage(ChatColor.GREEN + "[BlockRegen] You placed a normally regenerating block in admin mode. This block will regenerate.");
+            if (player.hasPermission("coe.blockregen.bypass.place")) {
+                player.sendMessage(ChatColor.YELLOW + "[BlockRegen] You placed a normally regenerating block in admin mode. This block will regenerate.");
                 p.getLogger().info(player.getName() + " placed " + type.toString() + " at " + p.locToString(block.getLocation()) + " in admin mode.");
                 return;
             }
@@ -101,7 +113,7 @@ public class EventManager implements Listener {
             d.addPlayerPlacedBlock(block.getLocation());
         }
     }
-    
+
     private int getRandomNumber(int min, int max) {
         return random.nextInt(min, max + 1);
     }

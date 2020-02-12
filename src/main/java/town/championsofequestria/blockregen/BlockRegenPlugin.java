@@ -21,9 +21,10 @@ public class BlockRegenPlugin extends JavaPlugin {
     public void onEnable() {
         p = this;
         tasks = new HashMap<Integer, BlockRegenTask>(0);
+        boolean hasTowny = TownyHandler.checkTowny();
         s = new Settings(this);
         d = new Data(this, s);
-        ch = new CommandHandler(d, s);
+        ch = new CommandHandler(d, s, hasTowny);
         getCommand("blockregen").setExecutor(ch);
         boolean hasEconomy = false;
         RegisteredServiceProvider<?> economy = null;
@@ -32,7 +33,7 @@ public class BlockRegenPlugin extends JavaPlugin {
             if (economy != null)
                 hasEconomy = true;
         }
-        getServer().getPluginManager().registerEvents(new EventManager(this, s, d, hasEconomy, economy), this);
+        getServer().getPluginManager().registerEvents(new EventManager(this, s, d, hasEconomy, economy, hasTowny), this);
         if (s.debug)
             getLogger().info("Startup complete.");
     }
