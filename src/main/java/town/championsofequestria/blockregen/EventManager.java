@@ -53,16 +53,6 @@ public class EventManager implements Listener {
                 p.getLogger().info(player.getName() + " removed " + type.toString() + " at " + p.locToString(block.getLocation()) + " in admin mode.");
                 return;
             }
-            if (hasTowny) {
-                Optional<TownBlock> oTownBlock = TownyHandler.getTownBlock(block.getLocation());
-                if (oTownBlock.isPresent()) {
-                    TownBlock townBlock = oTownBlock.get();
-                    if (townBlock.hasTown()) {
-                        if (s.blacklistedTowns.contains(TownyHandler.getTownFromTownBlockIgnoreExceptions(townBlock).getName()))
-                            return;
-                    }
-                }
-            }
             if (!rs.tools.contains(player.getInventory().getItemInMainHand().getType())) {
                 player.sendMessage(ChatColor.RED + "You lack the tool required to mine this block.");
                 pEvent.setCancelled(true);
@@ -77,11 +67,21 @@ public class EventManager implements Listener {
             if (hasEconomy) {
                 ((Economy) economy.getProvider()).depositPlayer(player, block.getWorld().getName(), rs.money);
             }
-            p.scheduleTask(block, rs);
             if (rs.max > 1) {
                 pEvent.setDropItems(false);
                 block.getWorld().dropItemNaturally(block.getLocation(), new ItemStack(type.material, getRandomNumber(rs.min, rs.max)));
             }
+            if (hasTowny) {
+                Optional<TownBlock> oTownBlock = TownyHandler.getTownBlock(block.getLocation());
+                if (oTownBlock.isPresent()) {
+                    TownBlock townBlock = oTownBlock.get();
+                    if (townBlock.hasTown()) {
+                        if (s.blacklistedTowns.contains(TownyHandler.getTownFromTownBlockIgnoreExceptions(townBlock).getName()))
+                            return;
+                    }
+                }
+            }
+            p.scheduleTask(block, rs);
             Bukkit.getScheduler().scheduleSyncDelayedTask(p, new Runnable() {
 
                 @Override
