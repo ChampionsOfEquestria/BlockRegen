@@ -5,7 +5,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.CreatureSpawner;
-
 import com.google.common.base.Preconditions;
 import town.championsofequestria.blockregen.exceptions.ReflectionException;
 import town.championsofequestria.blockregen.nbt.SpawnerData;
@@ -50,9 +49,18 @@ public class BlockRegenTask implements Runnable {
         try {
             spawner = SpawnerData.getCreatureSpawnerFromSpawnerData(block, data);
         } catch (ReflectionException e) {
+            e.printStackTrace();
             return;
         }
-        block.setBlockData(spawner.getBlockData());
+        if(!spawner.update(true)) {
+            StringBuilder builder = new StringBuilder();
+            builder.append("Invalid Spawner type.");
+            builder.append(System.lineSeparator());
+            builder.append("Block = ").append(block.toString());
+            builder.append(System.lineSeparator());
+            builder.append("SpawnerData = ").append(data.toString());
+            throw new IllegalStateException(builder.toString());
+        }
         BlockRegenPlugin.p.tasks.remove(taskid);
     }
 
@@ -78,7 +86,7 @@ public class BlockRegenTask implements Runnable {
 
     @Override
     public String toString() {
-        return String.format("BlockBR[block=%s|type=%s|seconds=%d|taskid=%d]", block.toString(), Material.SPAWNER.name(), seconds, taskid);
+        return String.format("BlockBR[block=%s|type=%s|data=%s|seconds=%d|taskid=%d]", block.toString(), Material.SPAWNER.name(), data.toString(), seconds, taskid);
     }
 
 }

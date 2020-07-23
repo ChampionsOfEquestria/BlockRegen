@@ -1,8 +1,6 @@
 package town.championsofequestria.blockregen.nbt;
 
 import java.lang.reflect.Constructor;
-import java.util.HashMap;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -30,7 +28,6 @@ public class SpawnerData {
             Constructor<? extends CreatureSpawner> con = clazz.getConstructor(Block.class);
             return con.newInstance(block);
         } catch (Exception ex) {
-            ex.printStackTrace();
             throw new ReflectionException(ex);
         }
     }
@@ -41,7 +38,7 @@ public class SpawnerData {
         spawner.setMaxNearbyEntities(data.MaxNearbyEntities);
         spawner.setRequiredPlayerRange(data.RequiredPlayerRange);
         spawner.setSpawnCount(data.SpawnCount);
-        spawner.setSpawnedType(EntityType.valueOf(data.id.toUpperCase()));
+        spawner.setSpawnedType(EntityType.valueOf(data.id));
         spawner.setMaxSpawnDelay(data.MaxSpawnDelay);
         spawner.setDelay(data.Delay);
         spawner.setSpawnRange(data.SpawnRange);
@@ -54,14 +51,12 @@ public class SpawnerData {
         Preconditions.checkArgument(block.getType().equals(Material.SPAWNER));
         CreatureSpawner spawner = (CreatureSpawner) block.getState();
         SpawnerData data = new SpawnerData();
+        
         data.MaxNearbyEntities = spawner.getMaxNearbyEntities();
         data.RequiredPlayerRange = spawner.getRequiredPlayerRange();
         data.SpawnCount = spawner.getSpawnCount();
 
-        HashMap<String, String> map = new HashMap<String, String>(1);
-        String id = spawner.getSpawnedType().getKey().getKey();
-        map.put("id", id);
-        data.SpawnData = map;
+        String id = spawner.getSpawnedType().getKey().getKey().toUpperCase();
 
         data.MaxSpawnDelay = spawner.getMaxSpawnDelay();
 
@@ -81,7 +76,6 @@ public class SpawnerData {
     public int MinSpawnDelay;
     public int RequiredPlayerRange;
     public int SpawnCount;
-    public HashMap<String, String> SpawnData;
     public int SpawnRange;
 
     @Override
