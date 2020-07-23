@@ -51,11 +51,13 @@ public class EventManager implements Listener {
         if (player.hasPermission("coe.blockregen.bypass.remove")) {
             if (type.equals(s.spawnerReplaceSetting.target)) {
                 player.sendMessage(ChatColor.RED + "[BlockRegen] You removed a normally regenerating block in admin mode. This block will no longer regenerate.");
-                p.getLogger().info(player.getName() + " removed " + type.toString() + " at " + BlockRegenPlugin.locationToString(block.getLocation()) + " in admin mode.");
+                p.getLogger().info(player.getName() + " removed " + type.toString() + " at " + BlockRegenPlugin.locationToString(location) + " in admin mode.");
                 return true;
             }
             new HashMap<Integer, BlockRegenTask>(p.tasks).forEach((id, task) -> {
                 if (task.getBlockLocation().equals(location)) {
+                    player.sendMessage(ChatColor.RED + "[BlockRegen] You removed a normally regenerating block in admin mode. This block will no longer regenerate.");
+                    p.getLogger().info(player.getName() + " removed " + type.toString() + " at " + BlockRegenPlugin.locationToString(location) + " in admin mode.");
                     Bukkit.getScheduler().cancelTask(id);
                     p.tasks.remove(id);
                 }
