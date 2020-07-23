@@ -1,38 +1,44 @@
 package town.championsofequestria.blockregen;
 
 import java.util.HashMap;
+import java.util.Objects;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
-import net.milkbowl.vault.economy.Economy;
 
 public class BlockRegenPlugin extends JavaPlugin {
 
+    public static final String locationToString(Location location) {
+        Objects.requireNonNull(location);
+        World world = location.getWorld();
+        return String.format("%s:%d,%d,%d", world == null ? "%UNLOADED_WORLD%" : world.getName(), location.getBlockX(), location.getBlockY(), location.getBlockZ());
+    }
+
+    public static final Location stringToLocation(String location) {
+        if (location == null || location.trim().isEmpty())
+            return new Location(null, 0, 0, 0);
+        String[] parts = location.split(":");
+        String[] coords = parts[1].split(",");
+        return new Location(Bukkit.getWorld(parts[0]), Double.parseDouble(coords[0]), Double.parseDouble(coords[1]), Double.parseDouble(coords[2]));
+    }
+
     private CommandHandler ch;
     private Settings s;
-    private Data d;
     static BlockRegenPlugin p;
-    public static HashMap<Integer, BlockRegenTask> tasks;
+    public HashMap<Integer, BlockRegenTask> tasks;
 
     @Override
     public void onEnable() {
         p = this;
         tasks = new HashMap<Integer, BlockRegenTask>(0);
         s = new Settings(this);
-        d = new Data(this, s);
-        ch = new CommandHandler(d, s);
+        ch = new CommandHandler(s);
         getCommand("blockregen").setExecutor(ch);
-        boolean hasEconomy = false;
-        RegisteredServiceProvider<?> economy = null;
-        if (getServer().getPluginManager().getPlugin("Vault") != null) {
-            economy = getServer().getServicesManager().getRegistration(Economy.class);
-            if (economy != null)
-                hasEconomy = true;
-        }
-        getServer().getPluginManager().registerEvents(new EventManager(this, s, d, hasEconomy, economy), this);
+        getServer().getPluginManager().registerEvents(new EventManager(this, s), this);
+        saveDefaultConfig();
         if (s.debug)
             getLogger().info("Startup complete.");
     }
@@ -50,7 +56,7 @@ public class BlockRegenPlugin extends JavaPlugin {
     }
 
     public void scheduleTask(Block block, ReplaceSetting rs) {
-        scheduleTask(new BlockRegenTask(block, block.getType(), rs.regenerateTime));
+        scheduleTask(new BlockRegenTask(block, rs.regenerateTime));
     }
 
     public void scheduleTask(BlockRegenTask task) {
@@ -58,7 +64,4 @@ public class BlockRegenPlugin extends JavaPlugin {
         tasks.put(task.taskid, task);
     }
 
-    public String locToString(Location loc) {
-        return String.format("%d,%d,%d:%s", loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(), loc.getWorld().getName());
-    }
 }

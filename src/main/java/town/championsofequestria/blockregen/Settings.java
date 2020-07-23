@@ -15,21 +15,16 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
+import town.championsofequestria.blockregen.nbt.SpawnerData;
+
 public class Settings {
 
-    String dbDatabase;
-    String dbHost;
-    String dbPass;
-    String dbPort;
-    String dbPrefix;
-    String dbUser;
     private final BlockRegenPlugin plugin;
-    boolean stackTraces;
-    boolean showQuery;
     boolean debug;
     private YamlConfiguration eventConfig;
     private File eventConfigFile;
     HashMap<Material, ReplaceSetting> blocks = new HashMap<Material, ReplaceSetting>(0);
+    ReplaceSetting spawnerReplaceSetting;
 
     Settings(final BlockRegenPlugin plugin) {
         this.plugin = plugin;
@@ -45,43 +40,18 @@ public class Settings {
      */
     private void readSettings(final FileConfiguration config) {
         debug = config.getBoolean("general.debugMessages");
-        stackTraces = config.getBoolean("general.printStackTraces");
-        showQuery = config.getBoolean("general.showQueries");
-        dbHost = config.getString("database.host");
-        dbPort = config.getString("database.port");
-        dbUser = config.getString("database.username");
-        dbPass = config.getString("database.password");
-        dbDatabase = config.getString("database.database");
-        dbPrefix = config.getString("database.prefix");
-        ConfigurationSection blocks = config.getConfigurationSection("blocks");
-        if (blocks != null)
-            for (String name : blocks.getValues(false).keySet()) {
-                Material target = Material.getMaterial(name);
-                Material replace = Material.getMaterial(config.getString("blocks." + name + ".replace"));
-                int regenerateTime = config.getInt("blocks." + name + ".regenerate-time");
-                int replaceTime = config.getInt("blocks." + name + ".replace-time");
-                ArrayList<String> toolsNames = (ArrayList<String>) config.getStringList("blocks." + name + ".tools-required");
-                ArrayList<Material> tools = new ArrayList<Material>(toolsNames.size());
-                for(String tool : toolsNames) {
-                    tools.add(Material.getMaterial(tool));
-                }
-                double money = config.getDouble("blocks." + name + ".money");
-                int min = config.getInt("blocks." + name + ".min", 1);
-                int max = config.getInt("blocks." + name + ".max", 1);
-                ArrayList<String> worldsBlacklist = (ArrayList<String>) config.getStringList("blocks." + name + ".but-not-in-worlds");
-                ArrayList<World> worlds = new ArrayList<World>(worldsBlacklist.size());
-                for(String world : worldsBlacklist) {
-                    Optional<World> oWorld = Optional.<World>ofNullable(Bukkit.getWorld(world));
-                    if (!oWorld.isPresent()) {
-                        plugin.getLogger().log(Level.SEVERE, "Block " + name + " wanted to add " + world + " as a blacklist, but that world isn't loaded!");
-                        continue;
-                    }
-                    worlds.add(oWorld.get());
-                }
-                boolean trackPlayers = config.getBoolean("blocks." + name + ".track-players", true);
-               this.blocks.put(target, new ReplaceSetting(target, replace, regenerateTime, replaceTime, tools, money, min, max, worlds, trackPlayers));
-                
+        ArrayList<String> worldNames = (ArrayList<String>) config.getStringList("spawner.worlds");
+        ArrayList<World> worlds = new ArrayList<World>(0);
+        for (String worldName : worldNames) {
+            Optional<World> world = Optional.ofNullable(Bukkit.getWorld(worldName));
+            if (world.isPresent()) {
+                worlds.add(world.get());
+                continue;
             }
+            plugin.getLogger().info("Tried to load unloaded world " + worldName);
+
+        }
+        spawnerReplaceSetting = new ReplaceSetting(Material.SPAWNER, Material.BEDROCK, config.getInt("spawner.regenerateTime"), config.getInt("spawner.replaceTime"), worlds);
         loadTasks();
     }
 
@@ -96,7 +66,8 @@ public class Settings {
                 continue;
             }
             Location loc = new Location(oWorld.get(), event.getDouble("x"), event.getDouble("y"), event.getDouble("z"));
-            plugin.scheduleTask(new BlockRegenTask(loc.getBlock(), Material.getMaterial(event.getString("target-material")), event.getInt("time")));
+            SpawnerData data = SpawnerData.fromString(event.getString("data"));
+            plugin.scheduleTask(new BlockRegenTask(loc.getBlock(), data, event.getInt("time")));
             eventConfig.set("events." + eventId, null);
             saveEventConfig();
         }
@@ -124,8 +95,8 @@ public class Settings {
         section.set("x", task.getBlockLocation().getBlockX());
         section.set("y", task.getBlockLocation().getBlockY());
         section.set("z", task.getBlockLocation().getBlockZ());
-        section.set("target-material", task.getMaterial());
         section.set("time", task.getTimeToRegenerate());
+        section.set("data", task.getData());
         saveEventConfig();
     }
 }

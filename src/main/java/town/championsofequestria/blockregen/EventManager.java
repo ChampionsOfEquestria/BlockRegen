@@ -1,6 +1,6 @@
 package town.championsofequestria.blockregen;
 
-import java.util.concurrent.ThreadLocalRandom;
+import java.util.HashMap;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -11,29 +11,19 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.RegisteredServiceProvider;
+import org.bukkit.plugin.java.JavaPlugin;
 
-import net.milkbowl.vault.economy.Economy;
+import com.google.common.collect.Maps;
 
 public class EventManager implements Listener {
 
     private final Settings s;
-    private Data d;
     private BlockRegenPlugin p;
-    private boolean hasEconomy;
-    private RegisteredServiceProvider<?> economy;
-    private ThreadLocalRandom random;
 
-    public EventManager(final BlockRegenPlugin p, final Settings s, final Data d, boolean hasEconomy, RegisteredServiceProvider<?> economy) {
+    public EventManager(final BlockRegenPlugin p, final Settings s) {
         this.p = p;
         this.s = s;
-        this.d = d;
-        this.hasEconomy = hasEconomy;
-        this.economy = economy;
-        this.random = ThreadLocalRandom.current();
-        
+
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
@@ -41,66 +31,26 @@ public class EventManager implements Listener {
         Block block = pEvent.getBlock();
         Player player = pEvent.getPlayer();
         Material type = block.getType();
-        if (s.debug)
-            p.getLogger().info("Checking if the BlockMap has " + type.toString());
-        ReplaceSetting rs = s.blocks.get(type);
-        if (rs != null && !rs.worlds.contains(block.getWorld())) {
-            if(player.hasPermission("coe.blockregen.bypass.remove")) {
+        if (type == Material.SPAWNER && s.spawnerReplaceSetting.worlds.contains(block.getWorld())) {
+            if (player.hasPermission("coe.blockregen.bypass.remove")) {
                 player.sendMessage(ChatColor.RED + "[BlockRegen] You removed a normally regenerating block in admin mode. This block will no longer regenerate.");
-                p.getLogger().info(player.getName() + " removed " + type.toString() + " at " + p.locToString(block.getLocation()) + " in admin mode.");
-                return;
-            }
-            if(!rs.tools.contains(player.getInventory().getItemInMainHand().getType())) {
-                player.sendMessage(ChatColor.RED + "You lack the tool required to mine this block.");
-                pEvent.setCancelled(true);
-                return;
-            }
-            if (d.isPlayerPlaced(block.getLocation())) {
-                if (s.debug)
-                    p.getLogger().info("Removing player placed block flag at " + p.locToString(block.getLocation()));
-                d.removePlayerPlacedBlock(block.getLocation());
+                p.getLogger().info(player.getName() + " removed " + type.toString() + " at " + BlockRegenPlugin.locationToString(block.getLocation()) + " in admin mode.");
                 return;
             }
 
-            if(hasEconomy) {
-                ((Economy) economy.getProvider()).depositPlayer(player, block.getWorld().getName(), rs.money);
-            }
-            p.scheduleTask(block, rs);
-            if(rs.max > 1) {
-                pEvent.setDropItems(false);
-                block.getWorld().dropItemNaturally(block.getLocation(), new ItemStack(type, getRandomNumber(rs.min, rs.max)));
-            }
-            Bukkit.getScheduler().scheduleSyncDelayedTask(p, new Runnable() {
+            p.scheduleTask(block, s.spawnerReplaceSetting);
+            Bukkit.getScheduler().scheduleSyncDelayedTask(p, () -> {
+                block.setType(s.spawnerReplaceSetting.replace);
+            }, s.spawnerReplaceSetting.replaceTime);
 
-                @Override
-                public void run() {
-                    block.setType(rs.replace);
-                }
-            }, rs.replaceTime);
         }
+
+        new HashMap<Integer, BlockRegenTask>(p.tasks).forEach((id, task) -> {
+            if (task.getBlockLocation().equals(block.getLocation())) {
+                Bukkit.getScheduler().cancelTask(id);
+                p.tasks.remove(id);
+            }
+        });
     }
 
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
-    void onBlockPlace(final BlockPlaceEvent pEvent) {
-        Block block = pEvent.getBlock();
-        Material type = block.getType();
-        if (s.debug)
-            p.getLogger().info("Checking if the BlockMap has " + type.toString());
-        ReplaceSetting rs = s.blocks.get(type);
-        if (rs != null && rs.trackPlayers && !rs.worlds.contains(block.getWorld())) {
-            Player player = pEvent.getPlayer();
-            if(player.hasPermission("coe.blockregen.bypass.place")) {
-                player.sendMessage(ChatColor.GREEN + "[BlockRegen] You placed a normally regenerating block in admin mode. This block will regenerate.");
-                p.getLogger().info(player.getName() + " placed " + type.toString() + " at " + p.locToString(block.getLocation()) + " in admin mode.");
-                return;
-            }
-            if (s.debug)
-                p.getLogger().info("Setting player placed block flag at " + p.locToString(block.getLocation()));
-            d.addPlayerPlacedBlock(block.getLocation());
-        }
-    }
-    
-    private int getRandomNumber(int min, int max) {
-        return random.nextInt(min, max + 1);
-    }
 }

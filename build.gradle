@@ -4,7 +4,7 @@ plugins {
 }
 
 group = 'town.championsofequestria'
-version = '3-1.15'
+version = '4-spawner'
 
 repositories {
 	jcenter()
@@ -14,8 +14,8 @@ repositories {
 	}
 }
 dependencies {
-	compile 'org.bukkit:bukkit:1.15.1-R0.1-SNAPSHOT'
-	compile fileTree(dir: 'libs', include: '*.jar')
+     implementation 'org.spigotmc:spigot-api:1.15.2-R0.1-SNAPSHOT'
+	 //implementation fileTree(dir: 'libs', include: '*.jar')
 
 }
 
