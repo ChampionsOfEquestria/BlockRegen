@@ -1,31 +1,30 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+
 plugins {
 	id 'java'
 	id 'eclipse'
 }
 
 group = 'town.championsofequestria'
-version = '4-spawner'
+version = '5'
 
 repositories {
-	jcenter()
+    mavenCentral()
 	maven {
 		name 'spigot'
 		url 'https://hub.spigotmc.org/nexus/content/groups/public/'
 	}
 }
 dependencies {
-     implementation 'org.spigotmc:spigot-api:1.15.2-R0.1-SNAPSHOT'
+     implementation 'org.spigotmc:spigot-api:1.19-R0.1-SNAPSHOT'
 	 //implementation fileTree(dir: 'libs', include: '*.jar')
 
 }
 
 processResources {
-	inputs.properties version: project.version
+    
 	from (sourceSets.main.resources.srcDirs) {
-		include 'plugin.yml'
-		expand version:project.version
-	}
-	from (sourceSets.main.resources.srcDirs) {
-		exclude 'plugin.yml'
+        duplicatesStrategy = DuplicatesStrategy.INCLUDE
+		filter(ReplaceTokens, tokens: ['VERSION' : project.version])
 	}
 }

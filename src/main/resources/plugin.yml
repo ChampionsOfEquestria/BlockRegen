@@ -1,6 +1,6 @@
 name: BlockRegen
 main: town.championsofequestria.blockregen.BlockRegenPlugin
-version: $version
+version: @VERSION@
 authors: [SweetieBelle]
 softdepend: [Multiverse-Core, Vault]
 api-version: 1.15
